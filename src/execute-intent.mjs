@@ -1,7 +1,7 @@
 import { createHash } from "node:crypto";
 import { verifySignedRecord } from "@red-cup-engineering/strategy-evaluation-service";
 import { EMPTY_WITNESS_ROOT, identifyJsonSemanticContent } from "@red-cup-engineering/semantic-content-identify-service";
-import { canonicalJson as canonical } from "@red-cup-engineering/canonical-json-service";
+import { canonicalJson as canonical } from "@red-cup-engineering/computer-data-engine/identity";
 
 const identify = (body) => ({ id: identifyJsonSemanticContent({
   objectKind: "brokerage.execution-transport.record",

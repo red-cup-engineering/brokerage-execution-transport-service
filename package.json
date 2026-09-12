@@ -16,7 +16,7 @@
     "data/"
   ],
   "dependencies": {
-    "@red-cup-engineering/canonical-json-service": "0.2.1",
+    "@red-cup-engineering/computer-data-engine": "0.10.0",
     "@red-cup-engineering/semantic-content-identify-service": "0.2.7",
     "@red-cup-engineering/strategy-evaluation-service": "0.1.4"
   }
