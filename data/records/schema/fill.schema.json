@@ -1,9 +1,0 @@
-{
-  "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://registry.561.group/@red-cup-engineering/brokerage-execution-transport-service/data/records/schema/fill.schema.json",
-  "title": "brokerageExecutionTransportFill",
-  "description": "This package's execute-intent operation produces exactly venue-algebra-services-section's canonical fill (task:venue-algebra-lift) once an order intent clears the venue.",
-  "allOf": [
-    { "$ref": "https://registry.561.group/@red-cup-engineering/venue-algebra-services-section/data/records/schema/fill.schema.json" }
-  ]
-}
