@@ -18,6 +18,6 @@
   "dependencies": {
     "@red-cup-engineering/computer-code-engineering-services-section": "0.1.0",
     "@red-cup-engineering/json-services-section": "1.0.0",
-    "@red-cup-engineering/strategy-evaluation-service": "0.1.4"
+    "@red-cup-engineering/strategy-evaluation-service": "0.1.5"
   }
 }
