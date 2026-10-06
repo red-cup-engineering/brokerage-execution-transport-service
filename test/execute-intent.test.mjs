@@ -7,7 +7,7 @@ const contract = { id: "contract", type: "PrincipalBrokerageServiceContract", sc
 const grant = { id: "grant", type: "RevocableBrokerageAuthorityGrant", revoked: false, scopes: ["orders:live"], principalContract: "contract", validUntil: "2097-01-01T00:00:00.000Z" };
 const intent = { id: "intent", type: "AggressiveBrokerageOrderIntent", contract: "contract", symbol: "SPY", side: "buy", notional: 1, maximumLoss: 1 };
 
-test("execution reaches placeOrder only after one current orders:live authority", async (t) => {
+test("obsolete unreconciled execution route admits no venue effect", async (t) => {
   let calls = 0;
   const adapter = { async placeOrder() { calls += 1; return { id: "venue", status: "accepted" }; } };
   const rejected = [
@@ -24,10 +24,9 @@ test("execution reaches placeOrder only after one current orders:live authority"
       assert.equal(calls, 0);
     });
   }
-  await t.test("accepted authority is the sole venue effect", async () => {
-    const receipt = await executeAdmittedIntent({ contract, authorityGrant: grant, intent, adapter, now });
-    assert.equal(calls, 1);
-    assert.equal(receipt.credentialsExported, false);
+  await t.test("valid authority still cannot revive the retired execution route", async () => {
+    await assert.rejects(executeAdmittedIntent({ contract, authorityGrant: grant, intent, adapter, now }), /unreconciled-execution-transport-retired/u);
+    assert.equal(calls, 0);
   });
   assert.throws(() => validateExecutionRequest({ contract, authorityGrant: grant, intent: { ...intent, contract: "forged" }, now }), /contract/u);
 });

@@ -1,24 +1,25 @@
 {
-  "name": "@red-cup-engineering/brokerage-execution-transport-service",
-  "version": "0.1.6",
-  "type": "module",
-  "exports": {
-    ".": "./src/execute-intent.mjs",
-    "./src/execute-intent.mjs": "./src/execute-intent.mjs"
-  },
-  "scripts": {
-    "check": "node --check src/execute-intent.mjs && node --check test/execute-intent.test.mjs",
-    "test": "node --test test/*.test.mjs"
-  },
-  "description": "brokerage-execution-transport-service sovereign enterprise",
-  "files": [
-    "src",
-    "data/"
-  ],
   "dependencies": {
     "@red-cup-engineering/computer-code-engineering-services-section": "workspace:*",
     "@red-cup-engineering/computer-content-engineering-services-section": "workspace:*",
     "@red-cup-engineering/json-services-section": "workspace:*",
+    "@red-cup-engineering/mandate-portfolio-allocation-service": "workspace:*",
     "@red-cup-engineering/strategy-evaluation-service": "workspace:*"
-  }
+  },
+  "description": "brokerage-execution-transport-service sovereign enterprise",
+  "exports": {
+    ".": "./src/execute-intent.mjs",
+    "./src/execute-intent.mjs": "./src/execute-intent.mjs"
+  },
+  "files": [
+    "src",
+    "data/"
+  ],
+  "name": "@red-cup-engineering/brokerage-execution-transport-service",
+  "scripts": {
+    "check": "node --check src/execute-intent.mjs && node --check test/execute-intent.test.mjs",
+    "test": "node --test test/*.test.mjs"
+  },
+  "type": "module",
+  "version": "0.1.6"
 }
