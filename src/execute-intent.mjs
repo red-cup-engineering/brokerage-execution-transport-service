@@ -16,7 +16,7 @@ export function validateExecutionRequest({ contract, authorityGrant, intent, rev
     || !contract.scopes.includes("orders:live") || !authorityGrant.scopes?.includes("orders:live") || authorityGrant.principalContract !== contract.id) throw new TypeError("live-order-authority-refused");
   if (Date.parse(now) >= Date.parse(contract.validUntil) || Date.parse(now) >= Date.parse(authorityGrant.validUntil)) throw new TypeError("live-order-authority-expired");
   if (intent.notional > contract.risk.maximumOrderNotional || intent.maximumLoss > contract.risk.maximumLossAmount) throw new RangeError("execution-limit-exceeded");
-  if (intent.marketDecision && (intent.side !== 'buy' || Math.ceil(intent.notional * 100 - 1e-9) > allocationFor(intent.marketDecision, { venue: 'alpaca', instrument: intent.symbol, side: 'long', at: now }))) throw new RangeError('shared-market-allocation-expired-or-exceeded');
+  if (intent.marketDecision && (intent.side !== 'buy' || Math.ceil(intent.notional * 100 - 1e-9) > allocationFor(intent.marketDecision, { venue: 'alpaca', principal: contract.principal, instrument: intent.symbol, side: 'long', at: now }))) throw new RangeError('shared-market-allocation-expired-or-exceeded');
   return Object.freeze({ contract, authorityGrant, intent, revocation: revocation ?? null, now });
 }
 export async function executeAdmittedIntent({ contract, authorityGrant, intent, revocation, adapter, now = new Date().toISOString() }) {
@@ -32,10 +32,10 @@ const reference = (value, label) => { if (typeof value !== "string" || value.tri
 /** Shared-game orders use their modeled entry ceiling and funded quantity.
  * This is invoked only for a NEW placement; older filled orders can still be
  * reconciled after their research decision expires. */
-export function venueOrderForIntent(intent, now, clientOrderId) {
+export function venueOrderForIntent(intent, now, clientOrderId, principal) {
   const base = { symbol: intent.symbol, side: intent.side, time_in_force: 'day', client_order_id: clientOrderId };
   if (!intent.marketDecision) return { ...base, notional: intent.notional, type: 'market' };
-  const funded = allocationsFor(intent.marketDecision, { venue: 'alpaca', instrument: intent.symbol, side: 'long', at: now });
+  const funded = allocationsFor(intent.marketDecision, { venue: 'alpaca', principal, instrument: intent.symbol, side: 'long', at: now });
   if (intent.side !== 'buy' || funded.length !== 1 || Math.ceil(intent.notional * 100 - 1e-9) > funded[0].capitalCents) throw new RangeError('shared-market-allocation-expired-or-exceeded');
   const q = funded[0]; const units = Math.min(q.units, Math.floor(intent.notional / q.entryPrice / q.unitStep + 1e-10) * q.unitStep);
   if (!(units >= q.unitStep)) throw new RangeError('shared-market-order-below-funded-lot');
@@ -176,7 +176,7 @@ function createExecutionAndReconciliationProvider(mode, { resolveExecutionRecord
       ]);
       if (preTradeAccount.payload?.id !== second.records.authorityGrant.accountReference || second.records.contract.accountReference !== second.records.authorityGrant.accountReference) throw new TypeError("pretrade-account-authority-binding-mismatch");
       capacity = assessCurrentExecutionCapacity({ contract: second.records.contract, intent: second.records.intent, accountReceipt: preTradeAccount, positionsReceipt: preTradePositions, openOrdersReceipt: preTradeOpenOrders });
-      const venueOrder = venueOrderForIntent(second.records.intent, second.now, clientOrderId);
+      const venueOrder = venueOrderForIntent(second.records.intent, second.now, clientOrderId, second.records.contract.principal);
       try { placement = await adapter.placeOrder({ grant: second.records.authorityGrant, order: venueOrder, operationAuthorizationReference: second.records.intent.id, now: second.now }); }
       catch { placement = null; }
       let post;
