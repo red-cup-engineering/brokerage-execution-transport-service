@@ -2,7 +2,7 @@ import { correlateOrderFills, readOrderFills } from "./fills.mjs";
 import { createHash } from "node:crypto";
 import { allocationFor, allocationsFor } from '@red-cup-engineering/mandate-portfolio-allocation-service/market-game';
 import { verifySignedRecord } from "@red-cup-engineering/strategy-evaluation-service";
-import { EMPTY_WITNESS_ROOT, identifyJsonSemanticContent } from "@red-cup-engineering/computer-content-engineering-services-section/semantic-content-identity";
+import { EMPTY_WITNESS_ROOT, identifyJsonSemanticContent } from "@red-cup-engineering/computer-content-address-engineering-services-section/semantic-content-identity";
 
 const identify = (body) => ({ id: identifyJsonSemanticContent({
   objectKind: "brokerage.execution-transport.record",
