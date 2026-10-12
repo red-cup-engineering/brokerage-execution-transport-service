@@ -114,7 +114,25 @@ export function assessCurrentExecutionCapacity({ contract, intent, accountReceip
   }
   const range = exposure.get(normalizedSymbol) ?? { held: 0, buys: 0, sells: 0 };
   if (intent.side === 'buy' && notional > buyingPower) throw new RangeError('insufficient-current-buying-power');
-  if (intent.side === 'sell' && contract.risk.shorting !== true && range.held < range.sells + notional) throw new RangeError('sell-would-create-unapproved-short-position');
+  // Buying power can contain margin capacity. In a live contract, the default
+  // mandate is cash-funded; borrowed buying power requires an explicit grant
+  // in the principal's recorded risk policy, not merely permissive broker settings.
+  const cashOnly = contract.venue === 'alpaca-trading-live' && contract.risk.allowBorrowedFunds !== true;
+  let unborrowedBuyingPower = null;
+  if (cashOnly && intent.side === 'buy') {
+    // Incomplete broker observations must not silently mean that leverage is
+    // absent or that cash equals buying power.
+    if (String(account.multiplier) !== '1' || account.shorting_enabled !== false)
+      throw new TypeError('unleveraged-live-account-required');
+    const cash = account.cash, nonMarginable = account.non_marginable_buying_power ?? account.nonMarginableBuyingPower;
+    if (!['string', 'number'].includes(typeof cash) || !['string', 'number'].includes(typeof nonMarginable)
+        || (typeof cash === 'string' && !cash.trim()) || (typeof nonMarginable === 'string' && !nonMarginable.trim()))
+      throw new TypeError('complete-unborrowed-cash-observation-required');
+    unborrowedBuyingPower = Math.min(money(cash, 'account-cash'), money(nonMarginable, 'account-non-marginable-buying-power'));
+    if (notional > unborrowedBuyingPower) throw new RangeError('insufficient-unborrowed-cash');
+  }
+  if (intent.side === 'sell' && (contract.risk.shorting !== true || cashOnly) && range.held < range.sells + notional)
+    throw new RangeError('sell-would-create-unapproved-short-position');
   const worstExposure = r => Math.max(Math.abs(r.held - r.sells), Math.abs(r.held + r.buys));
   const currentAggregateNotional = [...exposure.values()].reduce((sum, r) => sum + worstExposure(r), 0);
   range[intent.side === 'buy' ? 'buys' : 'sells'] += notional; exposure.set(normalizedSymbol, range);
@@ -123,7 +141,7 @@ export function assessCurrentExecutionCapacity({ contract, intent, accountReceip
   if (aggregateNotional > maximumAggregateNotional) throw new RangeError("current-aggregate-exposure-limit-exceeded");
   const concentration = Math.abs(postTradeSymbolValue) / equity;
   if (concentration > concentrationLimit) throw new RangeError("current-concentration-limit-exceeded");
-  return Object.freeze({ openOrdersReceipt: openOrdersReceipt.id, equity, buyingPower, currentAggregateNotional, aggregateNotional, postTradeSymbolNotional: Math.abs(postTradeSymbolValue), concentration, maximumAggregateNotional, concentrationLimit });
+  return Object.freeze({ openOrdersReceipt: openOrdersReceipt.id, equity, buyingPower, unborrowedBuyingPower, cashOnly, currentAggregateNotional, aggregateNotional, postTradeSymbolNotional: Math.abs(postTradeSymbolValue), concentration, maximumAggregateNotional, concentrationLimit });
 }
 
 function validateExecution(mode, { contract, authorityGrant, intent, revocation, now, trustedPromotionActorKeys }) {
