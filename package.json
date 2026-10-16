@@ -1,8 +1,9 @@
 {
   "dependencies": {
-    "@red-cup-engineering/mandate-portfolio-allocation-service": "0.2.0",
-    "@red-cup-engineering/strategy-evaluation-service": "0.1.6",
-    "@red-cup-engineering/computer-content-address-engineering-services-section": "0.2.0"
+    "@red-cup-engineering/computer-content-address-engineering-services-section": "0.2.0",
+    "@red-cup-engineering/computer-data-engineering-services-section": "0.2.0",
+    "@red-cup-engineering/mandate-portfolio-allocation-service": "0.2.1",
+    "@red-cup-engineering/strategy-evaluation-service": "0.1.7"
   },
   "description": "brokerage-execution-transport-service sovereign enterprise",
   "exports": {
@@ -19,6 +20,6 @@
     "test": "node --test test/*.test.mjs"
   },
   "type": "module",
-  "version": "0.1.7",
+  "version": "0.1.8",
   "private": false
 }
