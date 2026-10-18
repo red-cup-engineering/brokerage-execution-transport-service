@@ -6,6 +6,11 @@
     "@red-cup-engineering/strategy-evaluation-service": "0.1.7"
   },
   "description": "brokerage-execution-transport-service sovereign enterprise",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/red-cup-engineering/prediction-market-engineering-services-section.git",
+    "directory": "services/brokerage-execution-transport-service"
+  },
   "exports": {
     ".": "./src/execute-intent.mjs",
     "./src/execute-intent.mjs": "./src/execute-intent.mjs"
