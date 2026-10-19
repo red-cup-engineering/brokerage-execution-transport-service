@@ -8,8 +8,7 @@
   "description": "brokerage-execution-transport-service sovereign enterprise",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/red-cup-engineering/prediction-market-engineering-services-section.git",
-    "directory": "services/brokerage-execution-transport-service"
+    "url": "git+https://github.com/red-cup-engineering/brokerage-execution-transport-service.git"
   },
   "exports": {
     ".": "./src/execute-intent.mjs",
